@@ -17,6 +17,7 @@ const urlSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     clickCount: {
       type: Number,
@@ -24,7 +25,7 @@ const urlSchema = mongoose.Schema(
     },
     expiresAt: {
       type: Number,
-      default: 0,
+      default: null,
     },
   },
   {
