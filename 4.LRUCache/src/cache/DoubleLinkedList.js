@@ -64,6 +64,24 @@ class DoublyLinkedList {
     }
     return values;
   }
+
+  validate() {
+    let current = this.head;
+
+    while (current !== this.tail) {
+      if (current.next.prev !== current) {
+        throw new Error("Invalid next/prev pointer relationship");
+      }
+
+      current = current.next;
+    }
+
+    if (this.tail.prev.next !== this.tail) {
+      throw new Error("Invalid tail pointer");
+    }
+
+    return true;
+  }
 }
 
 export default DoublyLinkedList;

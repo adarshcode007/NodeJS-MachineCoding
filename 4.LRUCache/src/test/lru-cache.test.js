@@ -22,7 +22,7 @@
 
 // cache.set("D", 10);
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import LRUCache from "../cache/LRUCache.js";
 
 describe("LRU Cache", () => {
@@ -198,5 +198,138 @@ describe("LRU Cache", () => {
 
     expect(cache.has("A")).toBe(true);
     expect(cache.get("A")).toBeNull();
+  });
+
+  it("should maintain internal data structure invariants", () => {
+    const cache = new LRUCache(3);
+
+    cache.set("A", 1);
+    cache.set("B", 2);
+    cache.set("C", 3);
+
+    expect(cache.validate()).toBe(true);
+
+    cache.get("A");
+
+    expect(cache.validate()).toBe(true);
+
+    cache.delete("B");
+
+    expect(cache.validate()).toBe(true);
+
+    cache.set("D", 4);
+
+    expect(cache.validate()).toBe(true);
+
+    console.log(cache.toJSON());
+  });
+
+  it("should expire entries after TTL", () => {
+    vi.useFakeTimers();
+
+    const cache = new LRUCache(3);
+
+    cache.set("A", 100, {
+      ttl: 5000,
+    });
+
+    expect(cache.get("A")).toBe(100);
+
+    vi.advanceTimersByTime(5001);
+
+    expect(cache.get("A")).toBeUndefined();
+
+    vi.useRealTimers();
+  });
+
+  it("should keep entries without TTL", () => {
+    vi.useFakeTimers();
+
+    const cache = new LRUCache(3);
+
+    cache.set("A", 100);
+
+    vi.advanceTimersByTime(100000);
+
+    expect(cache.get("A")).toBe(100);
+
+    vi.useRealTimers();
+  });
+
+  it("should reset TTL when an existing key is updated", () => {
+    vi.useFakeTimers();
+
+    const cache = new LRUCache(3);
+
+    cache.set("A", 100, {
+      ttl: 5000,
+    });
+
+    vi.advanceTimersByTime(4000);
+
+    cache.set("A", 200, {
+      ttl: 5000,
+    });
+
+    vi.advanceTimersByTime(4000);
+
+    expect(cache.get("A")).toBe(200);
+
+    vi.advanceTimersByTime(1001);
+
+    expect(cache.get("A")).toBeUndefined();
+
+    vi.useRealTimers();
+  });
+
+  it("should track cache hits", () => {
+    const cache = new LRUCache(3);
+
+    cache.set("A", 100);
+
+    cache.get("A");
+    cache.get("A");
+
+    expect(cache.stats().hits).toBe(2);
+    expect(cache.stats().misses).toBe(0);
+  });
+
+  it("should track cache misses", () => {
+    const cache = new LRUCache(3);
+
+    cache.get("A");
+    cache.get("B");
+
+    expect(cache.stats().hits).toBe(0);
+    expect(cache.stats().misses).toBe(2);
+  });
+
+  it("should track LRU evictions", () => {
+    const cache = new LRUCache(2);
+
+    cache.set("A", 1);
+    cache.set("B", 2);
+    cache.set("C", 3);
+
+    expect(cache.stats().evictions).toBe(1);
+  });
+
+  it("should track expirations", () => {
+    vi.useFakeTimers();
+
+    const cache = new LRUCache(2);
+
+    cache.set("A", 1, {
+      ttl: 1000,
+    });
+
+    vi.advanceTimersByTime(1001);
+
+    expect(cache.get("A")).toBeUndefined();
+
+    expect(cache.stats().misses).toBe(1);
+    expect(cache.stats().expirations).toBe(1);
+
+    vi.useRealTimers();
   });
 });
