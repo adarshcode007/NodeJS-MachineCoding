@@ -1,4 +1,8 @@
-import { addMemberToGroup, createGroup } from "../services/group.service.js";
+import {
+  addMemberToGroup,
+  createGroup,
+  getGroupById,
+} from "../services/group.service.js";
 
 export const createGroupController = async (req, res, next) => {
   try {
@@ -42,6 +46,21 @@ export const addMemberController = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       data: member,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getGroupController = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+
+    const group = await getGroupById(groupId);
+
+    return res.status(200).json({
+      success: true,
+      data: group,
     });
   } catch (error) {
     next(error);

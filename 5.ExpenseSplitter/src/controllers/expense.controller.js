@@ -1,4 +1,7 @@
-import { createExpense } from "../services/expense.service.js";
+import {
+  createExpense,
+  getGroupExpenses,
+} from "../services/expense.service.js";
 
 export const createExpensesController = async (req, res, next) => {
   try {
@@ -45,9 +48,24 @@ export const createExpensesController = async (req, res, next) => {
       splits,
     });
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       data: expense,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getGroupExpensesController = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+
+    const expenses = await getGroupExpenses(groupId);
+
+    return res.status(200).json({
+      success: true,
+      data: expenses,
     });
   } catch (error) {
     next(error);
