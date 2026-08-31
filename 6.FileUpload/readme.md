@@ -1,0 +1,17 @@
+- Project setup
+- Basic Express server
+- Multipart/form-data handling
+- Single file upload
+- Streaming file to disk
+- Multiple file upload
+- File metadata
+- File validation
+- File size limits
+- Download/stream files
+- Delete files
+- Database metadata with PostgreSQL
+- Concurrency handling
+- Error handling
+- Tests
+- Load testing
+- Production-level improvements
