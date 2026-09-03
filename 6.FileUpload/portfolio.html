@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Aayush Singh | AI & ML Portfolio</title>
+
+    <style>
+      /* =========================
+   EDIT COLORS HERE
+========================= */
+      :root {
+        --dark: #111827;
+        --blue: #2563eb;
+        --cyan: #06b6d4;
+        --yellow: #ffd84d;
+        --cream: #fffaf0;
+        --white: #ffffff;
+        --gray: #64748b;
+        --light: #f1f5f9;
+      }
+
+      /* =========================
+   BASIC SETTINGS
+========================= */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--cream);
+        color: var(--dark);
+        line-height: 1.6;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1150px;
+        margin: auto;
+      }
+
+      /* =========================
+   NAVBAR
+========================= */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 250, 240, 0.94);
+        backdrop-filter: blur(12px);
+        border-bottom: 2px solid var(--dark);
+      }
+
+      .navbar {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        font-size: 25px;
+        font-weight: 900;
+      }
+
+      .logo span {
+        color: var(--blue);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 25px;
+      }
+
+      .nav-links a {
+        font-weight: bold;
+      }
+
+      .nav-links a:hover {
+        color: var(--blue);
+      }
+
+      /* =========================
+   HERO
+========================= */
+      .hero {
+        min-height: 90vh;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .badge {
+        display: inline-block;
+        background: var(--yellow);
+        border: 2px solid var(--dark);
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        font-size: clamp(50px, 8vw, 95px);
+        line-height: 0.9;
+        letter-spacing: -5px;
+        margin-bottom: 25px;
+      }
+
+      .hero h1 span {
+        color: var(--blue);
+      }
+
+      .hero p {
+        color: var(--gray);
+        font-size: 20px;
+        max-width: 650px;
+      }
+
+      .buttons {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 13px 22px;
+        border: 2px solid var(--dark);
+        border-radius: 30px;
+        font-weight: bold;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: var(--yellow);
+      }
+
+      .btn-dark {
+        background: var(--dark);
+        color: white;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+      }
+
+      /* HERO CARD */
+      .hero-card {
+        background: var(--yellow);
+        border: 3px solid var(--dark);
+        padding: 35px;
+        border-radius: 30px;
+        box-shadow: 12px 12px 0 var(--dark);
+        transform: rotate(2deg);
+      }
+
+      .avatar {
+        width: 180px;
+        height: 180px;
+        margin: auto auto 25px;
+        border-radius: 50%;
+        background: var(--blue);
+        border: 4px solid var(--dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 55px;
+        font-weight: 900;
+      }
+
+      .hero-card h2 {
+        text-align: center;
+      }
+
+      .hero-card p {
+        text-align: center;
+        font-size: 15px;
+      }
+
+      /* =========================
+   SECTION
+========================= */
+      section {
+        padding: 90px 0;
+      }
+
+      .section-title {
+        margin-bottom: 40px;
+      }
+
+      .small-title {
+        color: var(--blue);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .section-title h2 {
+        font-size: 45px;
+        line-height: 1.1;
+      }
+
+      /* =========================
+   CARDS
+========================= */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+
+      .card {
+        background: white;
+        border: 2px solid #dce2ea;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card h3 {
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .card p {
+        color: var(--gray);
+      }
+
+      .yellow-card {
+        background: #fff0b5;
+        border: 2px solid var(--dark);
+      }
+
+      /* =========================
+   ABOUT
+========================= */
+      .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+      }
+
+      .info-list {
+        list-style: none;
+      }
+
+      .info-list li {
+        padding: 10px 0;
+        border-bottom: 1px dashed #bbb;
+      }
+
+      .info-list strong {
+        display: inline-block;
+        width: 130px;
+      }
+
+      /* =========================
+   SKILLS
+========================= */
+      .skill-group {
+        margin-bottom: 25px;
+      }
+
+      .skill-group h4 {
+        margin-bottom: 12px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+      }
+
+      .tag {
+        background: var(--light);
+        border: 1px solid #ccd5df;
+        padding: 7px 12px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .tag.main {
+        background: var(--yellow);
+        border: 2px solid var(--dark);
+      }
+
+      /* =========================
+   TIMELINE
+========================= */
+      .timeline {
+        max-width: 800px;
+        margin: auto;
+        border-left: 4px solid var(--yellow);
+        padding-left: 30px;
+      }
+
+      .timeline-item {
+        margin-bottom: 30px;
+        position: relative;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -42px;
+        top: 10px;
+        width: 15px;
+        height: 15px;
+        background: var(--yellow);
+        border: 3px solid var(--dark);
+        border-radius: 50%;
+      }
+
+      .date {
+        color: var(--blue);
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      /* =========================
+   PROJECTS
+========================= */
+      .project {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .project-number {
+        position: absolute;
+        right: 20px;
+        top: 10px;
+        font-size: 55px;
+        color: #e8edf3;
+        font-weight: 900;
+      }
+
+      .project-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        background: var(--yellow);
+        border: 2px solid var(--dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        margin-bottom: 20px;
+      }
+
+      .project ul {
+        margin: 15px 0;
+        padding-left: 20px;
+        color: var(--gray);
+      }
+
+      .tech {
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      /* =========================
+   PROFILE LINKS
+========================= */
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+
+      .profile {
+        background: white;
+        padding: 20px;
+        border: 2px solid #e1e6ec;
+        border-radius: 18px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .profile:hover {
+        background: var(--yellow);
+        border-color: var(--dark);
+      }
+
+      /* =========================
+   GOAL
+========================= */
+      .goal {
+        background: var(--dark);
+        color: white;
+        border-radius: 30px;
+        padding: 55px;
+        text-align: center;
+      }
+
+      .goal h2 {
+        font-size: 50px;
+        line-height: 1.1;
+        margin: 15px 0;
+      }
+
+      .goal p {
+        color: #cbd5e1;
+        max-width: 700px;
+        margin: auto;
+      }
+
+      /* =========================
+   FOOTER
+========================= */
+      footer {
+        background: var(--dark);
+        color: white;
+        padding: 40px 0;
+        margin-top: 50px;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      footer p {
+        color: #94a3b8;
+      }
+
+      /* =========================
+   MOBILE
+========================= */
+      @media (max-width: 850px) {
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 70px 0;
+        }
+
+        .grid,
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .hero h1 {
+          font-size: 60px;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .profile-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .goal {
+          padding: 30px 20px;
+        }
+
+        .goal h2 {
+          font-size: 35px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+    <nav>
+      <div class="container navbar">
+        <!-- EDIT HERE -->
+        <div class="logo">AAYUSH<span>.</span></div>
+
+        <div class="nav-links">
+          <a href="#about">About</a>
+          <a href="#education">Education</a>
+          <a href="#skills">Skills</a>
+          <a href="#projects">Projects</a>
+          <a href="#profiles">Profiles</a>
+        </div>
+
+        <a class="btn btn-primary" href="mailto:aayushh1984@gmail.com">
+          Contact
+        </a>
+      </div>
+    </nav>
+
+    <!-- =====================================================
+     HERO
+===================================================== -->
+
+    <section id="home">
+      <div class="container hero">
+        <div>
+          <div class="badge">AI / ML ENGINEER • STUDENT</div>
+
+          <!-- EDIT HERE -->
+          <h1>Hi, I'm <span>Aayush Singh.</span></h1>
+
+          <p>
+            A B.Tech AI & Machine Learning student passionate about Python,
+            Artificial Intelligence, Machine Learning, NLP, Computer Vision and
+            building useful technology.
+          </p>
+
+          <div class="buttons">
+            <a href="#projects" class="btn btn-primary"> Explore My Work → </a>
+
+            <a href="mailto:aayushh1984@gmail.com" class="btn btn-dark">
+              Let's Connect
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="avatar">AS</div>
+
+          <h2>AI • ML • CSE</h2>
+
+          <p>Learn → Build → Experiment → Improve</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     ABOUT
+===================================================== -->
+
+    <section id="about">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">01 / My Introduction</div>
+          <h2>My journey begins with curiosity.</h2>
+        </div>
+
+        <div class="about-grid">
+          <div class="card yellow-card">
+            <h3>Who Am I?</h3>
+
+            <p>
+              I am Aayush Singh, a B.Tech student specializing in AI & Machine
+              Learning. I enjoy learning programming, experimenting with AI
+              tools and converting ideas into practical projects.
+            </p>
+
+            <br />
+
+            <p>
+              My current focus is strengthening my foundations in programming,
+              data science, machine learning, NLP and computer vision.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Quick Information</h3>
+
+            <ul class="info-list">
+              <li>
+                <strong>Name:</strong>
+                Aayush Singh
+              </li>
+
+              <li>
+                <strong>Registration:</strong>
+                12516041
+              </li>
+
+              <li>
+                <strong>Roll No:</strong>
+                24
+              </li>
+
+              <li>
+                <strong>Section:</strong>
+                K25TR
+              </li>
+
+              <li>
+                <strong>Discipline:</strong>
+                CSE (AI & ML)
+              </li>
+
+              <li>
+                <strong>Email:</strong>
+                aayushh1984@gmail.com
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     EDUCATION
+===================================================== -->
+
+    <section id="education">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">02 / My Education</div>
+          <h2>Learning is my foundation.</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item card">
+            <div class="date">2025 – Present</div>
+
+            <h3>B.Tech – AI & Machine Learning</h3>
+
+            <p>Lovely Professional University</p>
+          </div>
+
+          <div class="timeline-item card">
+            <div class="date">2024 – 2025</div>
+
+            <h3>Class XII</h3>
+
+            <p>CBSE</p>
+          </div>
+
+          <div class="timeline-item card">
+            <div class="date">2023 – 2024</div>
+
+            <h3>Class X</h3>
+
+            <p>CBSE</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     SKILLS
+===================================================== -->
+
+    <section id="skills">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">03 / My Skills</div>
+          <h2>My technical toolbox.</h2>
+        </div>
+
+        <div class="card">
+          <div class="skill-group">
+            <h4>Programming Languages</h4>
+
+            <div class="tags">
+              <span class="tag main">Python</span>
+              <span class="tag">C++</span>
+              <span class="tag">Java</span>
+              <span class="tag">SQL</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <h4>AI / ML</h4>
+
+            <div class="tags">
+              <span class="tag main">Machine Learning</span>
+              <span class="tag">NumPy</span>
+              <span class="tag">Pandas</span>
+              <span class="tag">Scikit-learn</span>
+              <span class="tag">TensorFlow</span>
+              <span class="tag">PyTorch</span>
+              <span class="tag">OpenCV</span>
+              <span class="tag">NLTK</span>
+              <span class="tag">Transformers</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <h4>Tools & Platforms</h4>
+
+            <div class="tags">
+              <span class="tag">Git</span>
+              <span class="tag">GitHub</span>
+              <span class="tag">Jupyter</span>
+              <span class="tag">AWS</span>
+              <span class="tag">Docker</span>
+              <span class="tag">Linux</span>
+              <span class="tag">Big Data</span>
+              <span class="tag">Figma</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <h4>Power Skills</h4>
+
+            <div class="tags">
+              <span class="tag">Leadership</span>
+              <span class="tag">Communication</span>
+              <span class="tag">Team Work</span>
+              <span class="tag">Problem Solving</span>
+              <span class="tag">Analytical Thinking</span>
+              <span class="tag">Adaptability</span>
+              <span class="tag">Resilience</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     INTERNSHIP
+===================================================== -->
+
+    <section id="experience">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">04 / Internship Experience</div>
+          <h2>Where I want to grow.</h2>
+        </div>
+
+        <div class="grid">
+          <div class="card yellow-card">
+            <h3>Data Science / ML Intern</h3>
+
+            <p>Target — Summer 2026</p>
+
+            <br />
+
+            <ul>
+              <li>Build and evaluate supervised ML models.</li>
+              <li>Perform EDA and feature engineering.</li>
+              <li>Work with Python, Pandas and Scikit-learn.</li>
+              <li>Assist with Flask / Streamlit deployment.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>ML / AI Engineer Intern</h3>
+
+            <p>Target — Summer 2027</p>
+
+            <br />
+
+            <ul>
+              <li>Contribute to NLP / Computer Vision pipelines.</li>
+              <li>Work with TensorFlow / PyTorch.</li>
+              <li>Collaborate on AI product features.</li>
+              <li>Participate in agile development.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Career Direction</h3>
+
+            <p>
+              My short-term goal is to gain industry experience through
+              internships while strengthening DSA, machine learning fundamentals
+              and my project portfolio.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     PROJECTS
+===================================================== -->
+
+    <section id="projects">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">05 / My Projects</div>
+          <h2>I learn by building.</h2>
+        </div>
+
+        <div class="grid">
+          <!-- PROJECT 1 -->
+
+          <div class="card project yellow-card">
+            <div class="project-number">01</div>
+
+            <div class="project-icon">AI</div>
+
+            <h3>AI-Powered Regional Language Translator</h3>
+
+            <p>NLP / Multilingual AI</p>
+
+            <ul>
+              <li>
+                Built a context-aware translation system supporting Hindi,
+                Bhojpuri and Maithili.
+              </li>
+
+              <li>
+                Integrated multilingual transformer models for contextual
+                translation.
+              </li>
+
+              <li>Deployed the system as a web application.</li>
+            </ul>
+
+            <div class="tech">
+              Tech: Python • Transformers • Flask • HTML/CSS
+            </div>
+          </div>
+
+          <!-- PROJECT 2 -->
+
+          <div class="card project">
+            <div class="project-number">02</div>
+
+            <div class="project-icon">🙂</div>
+
+            <h3>Sentiment Analysis Web App</h3>
+
+            <p>NLP / Text Classification</p>
+
+            <ul>
+              <li>Classifies reviews as positive, negative or neutral.</li>
+
+              <li>Uses NLP preprocessing and Naive Bayes.</li>
+
+              <li>Developed as a Flask web application.</li>
+            </ul>
+
+            <div class="tech">Tech: Python • NLTK • Flask • HTML/CSS</div>
+          </div>
+
+          <!-- PROJECT 3 -->
+
+          <div class="card project">
+            <div class="project-number">03</div>
+
+            <div class="project-icon">👁</div>
+
+            <h3>Real-Time Object Detection System</h3>
+
+            <p>Computer Vision</p>
+
+            <ul>
+              <li>Implemented YOLOv8 object detection on live webcam input.</li>
+
+              <li>Used a custom dataset for evaluation.</li>
+
+              <li>Achieved <strong>92% mAP</strong>.</li>
+            </ul>
+
+            <div class="tech">Tech: Python • OpenCV • YOLOv8 • PyTorch</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     CERTIFICATIONS
+===================================================== -->
+
+    <section id="certifications">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">06 / Certifications</div>
+          <h2>Proof of learning.</h2>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3>Introduction to Python</h3>
+            <p>Infosys Springboard • March 2026</p>
+          </div>
+
+          <div class="card">
+            <h3>Big Data – 201</h3>
+            <p>Infosys Springboard • February 2026</p>
+          </div>
+
+          <div class="card">
+            <h3>Introduction to AI</h3>
+            <p>Infosys Springboard • April 2026</p>
+          </div>
+
+          <div class="card">
+            <h3>Machine Learning Specialization</h3>
+            <p>DeepLearning.AI / Coursera / Andrew Ng • 2026</p>
+          </div>
+
+          <div class="card">
+            <h3>Google Professional ML Engineer</h3>
+            <p>Google Cloud • 2027</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     ONLINE PROFILES
+===================================================== -->
+
+    <section id="profiles">
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">07 / My Profiles</div>
+          <h2>Find me online.</h2>
+        </div>
+
+        <div class="profile-grid">
+          <a
+            class="profile"
+            href="https://github.com/aayush1984"
+            target="_blank"
+          >
+            GitHub
+          </a>
+
+          <a
+            class="profile"
+            href="https://leetcode.com/u/aayushh1984/"
+            target="_blank"
+          >
+            LeetCode
+          </a>
+
+          <a
+            class="profile"
+            href="https://www.hackerrank.com/profile/aayushh1984"
+            target="_blank"
+          >
+            HackerRank
+          </a>
+
+          <a
+            class="profile"
+            href="https://www.hackerearth.com/@aayushh1984/"
+            target="_blank"
+          >
+            HackerEarth
+          </a>
+
+          <a
+            class="profile"
+            href="https://www.geeksforgeeks.org/profile/aayushxxfy?from=explore"
+            target="_blank"
+          >
+            GeeksforGeeks
+          </a>
+
+          <a class="profile" href="https://stackoverflow.com/" target="_blank">
+            Stack Overflow
+          </a>
+
+          <a
+            class="profile"
+            href="https://www.figma.com/files/team/1547891199783846951/recents-and-sharing?fuid=1547891195928840022"
+            target="_blank"
+          >
+            Figma
+          </a>
+
+          <a
+            class="profile"
+            href="https://learn.saylor.org/my/courses.php"
+            target="_blank"
+          >
+            Technical MOOC
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     AI / DESIGN
+===================================================== -->
+
+    <section>
+      <div class="container">
+        <div class="section-title">
+          <div class="small-title">08 / Creative Work</div>
+          <h2>AI meets creativity.</h2>
+        </div>
+
+        <div class="grid">
+          <div class="card yellow-card">
+            <h3>AI Logo Designs</h3>
+
+            <p>
+              Explored AI-assisted logo and visual design as part of my
+              portfolio work.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Tools Explored</h3>
+
+            <br />
+
+            <div class="tags">
+              <span class="tag main">Gemini</span>
+              <span class="tag">Canva</span>
+              <span class="tag">Perplexity</span>
+              <span class="tag">Figma</span>
+              <span class="tag">Design AI</span>
+              <span class="tag">LightXEditor</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Design Thinking</h3>
+
+            <p>
+              I experiment with AI tools not only for programming but also for
+              visual communication, ideation and creative problem solving.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     GOAL
+===================================================== -->
+
+    <section>
+      <div class="container">
+        <div class="goal">
+          <div class="small-title" style="color: #ffd84d">09 / My Goal</div>
+
+          <h2>Build. Deploy. Scale. Impact.</h2>
+
+          <p>
+            Become a skilled ML Engineer at a top MNC, build scalable AI
+            solutions and create meaningful impact through technology.
+          </p>
+
+          <br />
+
+          <a href="mailto:aayushh1984@gmail.com" class="btn btn-primary">
+            Let's Build Something
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+     FOOTER
+===================================================== -->
+
+    <footer>
+      <div class="container footer">
+        <div>
+          <h3>AAYUSH SINGH</h3>
+
+          <p>AI / ML Engineer • B.Tech Student</p>
+        </div>
+
+        <div>
+          <p>CSE111 • Orientation to Computing-1</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

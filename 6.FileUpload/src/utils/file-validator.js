@@ -1,14 +1,9 @@
-const ALLOWED_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "application/pdf",
-  "text/plain",
-]);
+import { UPLOAD_CONFIG } from "../config/upload";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; //10MB
-
-function validateMimeType(mimeType) {
-  return ALLOWED_TYPES.has(mimeType);
+export function validateMimeType(mimeType) {
+  return UPLOAD_CONFIG.allowedMimeTypes.has(mimeType);
 }
 
-export { ALLOWED_TYPES, MAX_FILE_SIZE, validateMimeType };
+export function validateFileSize(size) {
+  return size <= UPLOAD_CONFIG.maxFileSize;
+}
