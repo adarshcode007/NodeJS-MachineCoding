@@ -17,9 +17,9 @@ import { UPLOAD_CONFIG } from "../config/upload.js";
 
 const uploadDir = UPLOAD_CONFIG.uploadDirectory;
 
-fs.mkdirSync(uploadDir, {
-  rescursive: true,
-});
+// fs.mkdirSync(uploadDir, {
+//   rescursive: true,
+// });
 
 export function saveFile(fileStream, originalName, mimeType, userId) {
   return new Promise((resolve, reject) => {
@@ -99,7 +99,7 @@ export function saveFile(fileStream, originalName, mimeType, userId) {
       }
     });
 
-    fileStream.pipe(writeStream);
+    // fileStream.pipe(writeStream);
   });
 }
 
@@ -162,11 +162,24 @@ export async function cleanupUploadedFiles(files) {
     return;
   }
 
-  await Promise.all(files.map((file) => cleanupFile(file.path)));
+  const results = await Promise.allSettled(
+    files.map((file) => cleanupFile(file.path)),
+  );
 
-  const ids = files.map((file) => file.id);
+  const successfullyDeletedIds = [];
+  const failedIds = [];
 
-  await deleteFilesByIds(ids);
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      successfullyDeletedIds.push(files[index].id);
+    } else {
+      failedIds(files[index].id);
+    }
+  });
+
+  if (successfullyDeletedIds.length > 0) {
+    await deleteFilesByIds(successfullyDeletedIds);
+  }
 }
 
 export async function listFiles(page = 1, limit = 20) {

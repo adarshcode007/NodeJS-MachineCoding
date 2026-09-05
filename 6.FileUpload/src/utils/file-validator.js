@@ -1,4 +1,4 @@
-import { UPLOAD_CONFIG } from "../config/upload";
+import { UPLOAD_CONFIG } from "../config/upload.js";
 
 export function validateMimeType(mimeType) {
   return UPLOAD_CONFIG.allowedMimeTypes.has(mimeType);
