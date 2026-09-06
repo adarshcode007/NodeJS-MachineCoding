@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
-import idempotencyService from "../services/idempotencyService.js";
-import notificationStore from "../services/notificationStore.js";
+
 import eventBus from "../events/eventBus.js";
+import { EventNames } from "../events/eventNames.js";
+import notificationStore from "../services/notificationStore.js";
+import idempotencyService from "../services/idempotencyService.js";
 import { NotificationStatus } from "../services/notificationStatus.js";
 import { validateNotificationInput } from "../services/notificationValidator.js";
+import logger from "../services/logger.js";
+import metrics from "../services/metrics.js";
 
 export async function createNotification(req, res) {
   let body;
@@ -25,17 +29,34 @@ export async function createNotification(req, res) {
   }
 
   const { idempotencyKey, userId, channel, recipient, message } = body;
+  const notificationId = randomUUID();
+  const registration = idempotencyService.saveIfAbsent(
+    idempotencyKey,
+    notificationId,
+  );
 
-  if (!idempotencyKey || !userId || !channel || !recipient || !message) {
-    return sendJson(res, 400, {
-      error: "Missing required fields",
+  if (!registration.saved) {
+    const existingNotification = notificationStore.getById(
+      registration.notificationId,
+    );
+
+    if (!existingNotification) {
+      logger.error("notification.idempotency_mismatch", {
+        idempotencyKey,
+        notificationId: registration.notificationId,
+      });
+
+      return sendJson(res, 409, {
+        error: "Idempotency record exists but notification is missing",
+      });
+    }
+
+    metrics.increment("notifications.duplicate");
+
+    logger.info("notification.duplicate", {
+      idempotencyKey,
+      notificationId: registration.notificationId,
     });
-  }
-
-  const existingId = idempotencyService.get(idempotencyKey);
-
-  if (existingId) {
-    const existingNotification = notificationStore.getById(existingId);
 
     return sendJson(res, 200, {
       notification: existingNotification,
@@ -44,7 +65,7 @@ export async function createNotification(req, res) {
   }
 
   const notification = {
-    id: randomUUID(),
+    id: notificationId,
     idempotencyKey,
     userId,
     channel,
@@ -53,13 +74,22 @@ export async function createNotification(req, res) {
     status: NotificationStatus.QUEUED,
     attempts: [],
     createdAt: new Date().toISOString(),
+    sentAt: null,
+    failedAt: null,
+    lastError: null,
   };
-
-  idempotencyService.save(idempotencyKey, notification.id);
 
   notificationStore.create(notification);
 
-  eventBus.emit("notification.created", notification);
+  metrics.increment("notifications.created");
+
+  eventBus.emit(EventNames.NOTIFICATION_CREATED, notification);
+
+  logger.info("notification.created", {
+    notificationId: notification.id,
+    channel: notification.channel,
+    recipient: notification.recipient,
+  });
 
   return sendJson(res, 202, {
     notification,

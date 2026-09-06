@@ -1,4 +1,6 @@
-const SUPPORTED_CHANNELS = new Set(["email", "sms", "push"]);
+import notificationService from "./notificationService.js";
+
+const SUPPORTED_CHANNELS = new Set(notificationService.getSupportedChannels());
 
 export function validateNotificationInput(input) {
   if (!input || typeof input !== "object") {

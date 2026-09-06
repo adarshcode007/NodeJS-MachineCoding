@@ -1,31 +1,47 @@
 import http from "node:http";
 
-import { handleNotificationRoutes } from "./routes/notificationRoutes.js";
-import notificationWorker from "./workers/notificationWorker.js";
-import "./events/notificationEvents.js";
+import { notificationWorker, requestListener } from "./app.js";
+import logger from "./services/logger.js";
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
 
-const server = http.createServer(async (req, res) => {
-  await handleNotificationRoutes(req, res);
+const server = http.createServer((req, res) => {
+  Promise.resolve(requestListener(req, res)).catch((error) => {
+    logger.error("request.failed", error);
+
+    if (!res.headersSent) {
+      res.writeHead(500, {
+        "Content-Type": "application/json",
+      });
+
+      res.end(
+        JSON.stringify({
+          error: "Internal server error",
+        }),
+      );
+    }
+  });
 });
 
 notificationWorker.start();
 
 server.listen(PORT, () => {
-  console.log(`Notification service on port ${PORT}`);
+  logger.info("server.started", {
+    port: PORT,
+  });
 });
 
 async function shutdown(signal) {
-  console.log(`${signal} received. Shutting down...`);
+  logger.warn("shutdown.received", {
+    signal,
+  });
 
   server.close(async () => {
-    console.log("HTTP server stopped accepting connections");
+    logger.info("server.stopped_accepting_connections");
 
     await notificationWorker.stop();
 
-    console.log("Shutdown complete");
-
+    logger.info("shutdown.complete");
     process.exit(0);
   });
 }

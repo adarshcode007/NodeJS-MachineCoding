@@ -15,3 +15,15 @@ export class NonRetryableError extends Error {
     this.retryable = false;
   }
 }
+
+export function isRetryableError(error) {
+  return Boolean(error && error.retryable === true);
+}
+
+export function errorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}

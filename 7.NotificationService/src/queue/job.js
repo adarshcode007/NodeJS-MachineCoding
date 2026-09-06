@@ -3,5 +3,6 @@ export function createNotificationJob(notification) {
     notification,
     attempts: 0,
     maxAttempts: 3,
+    createdAt: new Date().toISOString(),
   };
 }

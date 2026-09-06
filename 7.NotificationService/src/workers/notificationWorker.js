@@ -1,14 +1,21 @@
 import notificationQueue from "../queue/notificationQueue.js";
 import deadLetterQueue from "../queue/deadLetterQueue.js";
 import notificationService from "../services/notificationService.js";
-import notificationStore from "../services/notificationStore.js";
-import { NotificationStatus } from "../services/notificationStatus.js";
+import eventBus from "../events/eventBus.js";
+import { EventNames } from "../events/eventNames.js";
+import logger from "../services/logger.js";
+import { errorMessage, isRetryableError } from "../services/errors.js";
 
 class NotificationWorker {
   constructor(concurrency = 3) {
     this.concurrency = concurrency;
     this.isRunning = false;
     this.activeJobs = 0;
+    this.processedJobs = 0;
+    this.sentJobs = 0;
+    this.failedJobs = 0;
+    this.retriedJobs = 0;
+    this.pendingRetryTimers = new Set();
   }
 
   start() {
@@ -18,69 +25,69 @@ class NotificationWorker {
 
     this.isRunning = true;
 
-    for (let i = 0; i < this.concurrency; i++) {
+    logger.info("worker.started", {
+      concurrency: this.concurrency,
+    });
+
+    for (let i = 0; i < this.concurrency; i += 1) {
       this.process();
     }
   }
 
   async process() {
     while (this.isRunning) {
-      const job = notificationQueue.dequeue();
+      const job = notificationQueue.remove();
 
       if (!job) {
-        await this.sleep(100);
+        await this.sleep(50);
         continue;
       }
 
-      this.activeJobs++;
+      this.activeJobs += 1;
 
       try {
         await this.handle(job);
       } catch (error) {
         await this.handleFailure(job, error);
       } finally {
-        this.activeJobs--;
+        this.activeJobs -= 1;
+        this.processedJobs += 1;
       }
     }
   }
 
   async handle(job) {
     const { notification } = job;
-
     const attemptNumber = job.attempts + 1;
+    const startedAt = new Date().toISOString();
 
-    notificationStore.update(notification.id, {
-      status: NotificationStatus.PROCESSING,
+    eventBus.emit(EventNames.NOTIFICATION_PROCESSING, {
+      notificationId: notification.id,
+      attempt: {
+        attemptNumber,
+        startedAt,
+        status: "processing",
+      },
     });
-
-    const attempt = {
-      attemptNumber,
-      startedAt: new Date().toISOString(),
-      status: "processing",
-    };
-
-    notificationStore.addAttempt(notification.id, attempt);
-
-    console.log(
-      `[WORKER] Processing ${notification.id} ` + `(attempt ${attemptNumber})`,
-    );
 
     try {
       await notificationService.send(notification);
 
-      attempt.status = "success";
-      attempt.finishedAt = new Date().toISOString();
-
-      notificationStore.update(notification.id, {
-        status: NotificationStatus.SENT,
-        sentAt: attempt.finishedAt,
+      eventBus.emit(EventNames.NOTIFICATION_SENT, {
+        notificationId: notification.id,
+        attemptNumber,
+        sentAt: new Date().toISOString(),
       });
 
-      console.log(`[WORKER] Sent ${notification.id}`);
+      this.sentJobs += 1;
     } catch (error) {
-      attempt.status = "failed";
-      attempt.error = error.message;
-      attempt.finishedAt = new Date().toISOString();
+      eventBus.emit(EventNames.NOTIFICATION_ATTEMPT_FAILED, {
+        notificationId: notification.id,
+        attemptNumber,
+        error: errorMessage(error),
+        finishedAt: new Date().toISOString(),
+        retryable: isRetryableError(error),
+      });
 
       throw error;
     }
@@ -89,56 +96,89 @@ class NotificationWorker {
   async handleFailure(job, error) {
     const { notification } = job;
 
-    console.error(`Notification ${notification.id} failed:`, error.message);
+    job.attempts += 1;
 
-    // Permanent error → don't retry.
-    if (!error.retryable) {
-      notificationStore.update(notification.id, {
-        status: NotificationStatus.FAILED,
-        lastError: error.message,
-        failedAt: new Date().toISOString(),
-      });
+    const attemptNumber = job.attempts;
+    const failedAt = new Date().toISOString();
+    const retryable = isRetryableError(error);
 
-      deadLetterQueue.enqueue(job);
-
-      console.log(`Notification ${notification.id} moved to DLQ`);
-
-      return;
-    }
-
-    // Retryable error.
-    job.attempts++;
-
-    if (job.attempts >= job.maxAttempts) {
-      notificationStore.update(notification.id, {
-        status: NotificationStatus.FAILED,
-        lastError: error.message,
-        failedAt: new Date().toISOString(),
-      });
-
-      deadLetterQueue.enqueue(job);
-
-      console.log(`Notification ${notification.id} exhausted retries`);
-
+    if (!retryable || job.attempts >= job.maxAttempts) {
+      this.moveToDeadLetterQueue(job, error, attemptNumber, failedAt);
       return;
     }
 
     const delay = this.getRetryDelay(job.attempts);
+    const nextRetryAt = new Date(Date.now() + delay).toISOString();
 
-    notificationStore.update(notification.id, {
-      status: NotificationStatus.RETRYING,
-      lastError: error.message,
+    eventBus.emit(EventNames.NOTIFICATION_RETRYING, {
+      notificationId: notification.id,
+      attemptNumber,
+      error: errorMessage(error),
+      retryDelayMs: delay,
+      nextRetryAt,
     });
 
-    console.log(`Retrying ${notification.id} in ${delay}ms`);
+    this.scheduleRetry(job, delay);
+    this.retriedJobs += 1;
 
-    await this.sleep(delay);
+    logger.warn("worker.retry_scheduled", {
+      notificationId: notification.id,
+      attemptNumber,
+      retryDelayMs: delay,
+      nextRetryAt,
+      error: errorMessage(error),
+    });
+  }
 
-    notificationQueue.enqueue(job);
+  scheduleRetry(job, delay) {
+    const timer = setTimeout(() => {
+      this.pendingRetryTimers.delete(timer);
+
+      if (!this.isRunning) {
+        return;
+      }
+
+      notificationQueue.add(job);
+    }, delay);
+
+    if (typeof timer.unref === "function") {
+      timer.unref();
+    }
+
+    this.pendingRetryTimers.add(timer);
+  }
+
+  moveToDeadLetterQueue(job, error, attemptNumber, failedAt) {
+    const { notification } = job;
+    const message = errorMessage(error);
+
+    deadLetterQueue.enqueue({
+      ...job,
+      error: message,
+      failedAt,
+    });
+
+    eventBus.emit(EventNames.NOTIFICATION_FAILED, {
+      notificationId: notification.id,
+      attemptNumber,
+      error: message,
+      failedAt,
+    });
+
+    this.failedJobs += 1;
+
+    logger.error("worker.dead_lettered", {
+      notificationId: notification.id,
+      attemptNumber,
+      error: message,
+    });
   }
 
   getRetryDelay(attempt) {
-    return 100 * 2 ** (attempt - 1);
+    const baseDelay = 100 * 2 ** (attempt - 1);
+    const jitter = Math.floor(Math.random() * 50);
+
+    return baseDelay + jitter;
   }
 
   sleep(ms) {
@@ -148,15 +188,36 @@ class NotificationWorker {
   }
 
   async stop() {
-    this.isRunning = false;
-
-    while (this.activeJobs > 0) {
-      console.log(`Waiting for ${this.activeJobs} active job(s)...`);
-
-      await this.sleep(100);
+    if (!this.isRunning) {
+      return;
     }
 
-    console.log("Worker stopped");
+    this.isRunning = false;
+
+    for (const timer of this.pendingRetryTimers) {
+      clearTimeout(timer);
+    }
+
+    this.pendingRetryTimers.clear();
+
+    while (this.activeJobs > 0) {
+      await this.sleep(50);
+    }
+
+    logger.info("worker.stopped");
+  }
+
+  stats() {
+    return {
+      isRunning: this.isRunning,
+      concurrency: this.concurrency,
+      activeJobs: this.activeJobs,
+      processedJobs: this.processedJobs,
+      sentJobs: this.sentJobs,
+      failedJobs: this.failedJobs,
+      retriedJobs: this.retriedJobs,
+      pendingRetries: this.pendingRetryTimers.size,
+    };
   }
 }
 

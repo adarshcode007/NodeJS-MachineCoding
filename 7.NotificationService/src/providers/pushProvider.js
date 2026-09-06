@@ -1,11 +1,16 @@
+import logger from "../services/logger.js";
+
 export default {
   async send(notification) {
-    console.log(
-      `[PUSH] Sending to ${notification.recipient}: ${notification.message}`,
-    );
+    logger.info("provider.push.send", {
+      recipient: notification.recipient,
+      message: notification.message,
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    console.log(`[PUSH] Sent to ${notification.recipient}`);
+    logger.info("provider.push.sent", {
+      recipient: notification.recipient,
+    });
   },
 };
